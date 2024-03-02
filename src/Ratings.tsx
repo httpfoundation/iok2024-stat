@@ -86,10 +86,10 @@ const Ratings = () => {
 			</CardContent>
 		</Card>)}
 		<Box>
-			<CSVExportLink registrations={peopleDidRating} fileName="iok2023_ertekelok.csv"  buttonTitle="Értékelő vendégek exportálása CSV fájlba" />
+			<CSVExportLink registrations={peopleDidRating} fileName="iok2024_ertekelok.csv"  buttonTitle="Értékelő vendégek exportálása CSV fájlba" />
 		</Box>
 		<Box>
-			<CSVExportLink registrations={peopleDidNotRating} fileName="iok2023_nem_ertekelok.csv"  buttonTitle="Nem értékelő vendégek exportálása CSV fájlba" />
+			<CSVExportLink registrations={peopleDidNotRating} fileName="iok2024_nem_ertekelok.csv"  buttonTitle="Nem értékelő vendégek exportálása CSV fájlba" />
 		</Box>
 	</>
 }

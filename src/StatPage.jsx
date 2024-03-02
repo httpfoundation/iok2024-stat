@@ -34,7 +34,7 @@ const StatPage = () => {
 			<div>Helyszíni résztvevő visszajelzés: {numberOfRegistrationFeedback}</div>
 			<div>Ebből ennyi a lemondás: {numberOfCancellation}</div>
 			<div>Tolmácsolást kér: {numberOfTranslation}</div>
-			<CSVExportLink registrations={registrations} fileName="iok2023_jelentkezesek.csv" buttonTitle="Regisztráltak exportálása CSV fájlba" />
+			<CSVExportLink registrations={registrations} fileName="iok2024_jelentkezesek.csv" buttonTitle="Regisztráltak exportálása CSV fájlba" />
 		</>
 	)
 }

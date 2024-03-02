@@ -80,7 +80,7 @@ function App() {
 				{(loggedIn) ? (
 					<Router>
 						<Container sx={{}}>
-							<h1>IOK 2023 statisztika</h1>
+							<h1>IOK 2024 statisztika</h1>
 							<Box sx={{mb: 4}}>
 								<Link to="/"><Button variant="contained" color="primary">Jelentkezések</Button></Link>
 								<Link to="/jelenlet"><Button variant="contained" color="primary" sx={{ml: 2}}>Jelenlét</Button></Link>
