@@ -1,6 +1,7 @@
 /* import styled from "styled-components" */
 import  { useGetAll} from "./tools/datoCmsTools"
-import { CSVExportLink, getRegistrationsForExport } from "./CSVExportLink"
+import { getRegistrationsForExport } from "./CSVExportLink"
+import XLSXExportButton from "./XLSXExportButton"
 
 const StatPage = () => {
 	
@@ -19,9 +20,32 @@ const StatPage = () => {
 		const regs = registrations?.filter((reg) => reg.stage===`${stage.id}`)
 		return {name: stage.name, numberOfRegistration: regs.length}
 	}))
+
+	console.log(registrations)
 	
 	const onsiteBreakoutSessions = breakoutSessions.filter(bs => bs.numberOfRegistration>0)
 
+	const prepareRegistrationExport = () => {
+		if(!registrations) return;
+
+		return [
+      ["ID", "Név", "E-mail", "Telefonszám", "Munkahely", "Onsite", "Szekció", "VIP Kód", "Regisztráció visszajelzés", "Fordítás", "Hírlevél", "Regisztrálás dátuma"],
+      ...registrations.map((i) => [
+        i.id,
+        i.name,
+        i.email,
+        i.phone,
+        i.workplace,
+        i.onsite,
+        stages.find(x => x.id === i.stage)?.name || "",
+        i.vipCode,
+        i.registrationFeedback,
+        i.translation,
+        i.newsletter,
+        i.createdAt,
+      ]),
+    ];
+	}
 
 	return (
 		<>
@@ -34,7 +58,10 @@ const StatPage = () => {
 			<div>Helyszíni résztvevő visszajelzés: {numberOfRegistrationFeedback}</div>
 			<div>Ebből ennyi a lemondás: {numberOfCancellation}</div>
 			<div>Tolmácsolást kér: {numberOfTranslation}</div>
-			<CSVExportLink registrations={registrations} fileName="iok2024_jelentkezesek.csv" buttonTitle="Regisztráltak exportálása CSV fájlba" />
+
+			<XLSXExportButton filename="iok2024_jelentkezesek.xlsx" prepareExport={prepareRegistrationExport}>
+				Regisztráltak exportálása Excel fájlba
+			</XLSXExportButton>
 		</>
 	)
 }

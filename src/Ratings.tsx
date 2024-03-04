@@ -1,6 +1,7 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, CardContent, Card, Typography, Stack, Grid, Button } from "@mui/material"
 import { useGetAll } from "./tools/datoCmsTools"
 import { CSVExportLink } from "./CSVExportLink"
+import XLSXExportButton from "./XLSXExportButton"
 
 const Ratings = () => {
 	const _ratings = useGetAll("rating") as Array<{
@@ -39,6 +40,31 @@ const Ratings = () => {
 		})
 	})
 
+	const preparePeopleDidRatingExport = () => {
+		return [
+      ["ID", "Név", "E-mail", "Telefonszám", "Regisztrálás dátuma"],
+      ...peopleDidRating.map((i) => [
+        i.id,
+        i.name,
+        i.email,
+        i.phone,
+        i.createdAt,
+      ]),
+    ];
+	}
+
+	const preparePeopleDidNotRatingExport = () => {
+		return [
+      ["ID", "Név", "E-mail", "Telefonszám", "Regisztrálás dátuma"],
+      ...peopleDidNotRating.map((i) => [
+        i.id,
+        i.name,
+        i.email,
+        i.phone,
+        i.createdAt,
+      ]),
+    ];
+	}
 
 	return <>
 			<b>{lastRatings.length}</b> beküldött értékelés
@@ -86,10 +112,14 @@ const Ratings = () => {
 			</CardContent>
 		</Card>)}
 		<Box>
-			<CSVExportLink registrations={peopleDidRating} fileName="iok2024_ertekelok.csv"  buttonTitle="Értékelő vendégek exportálása CSV fájlba" />
+			<XLSXExportButton filename="iok2024_ertekelok.xlsx" prepareExport={preparePeopleDidRatingExport}>
+				Értékelő vendégek exportálása Excel fájlba
+			</XLSXExportButton>
 		</Box>
 		<Box>
-			<CSVExportLink registrations={peopleDidNotRating} fileName="iok2024_nem_ertekelok.csv"  buttonTitle="Nem értékelő vendégek exportálása CSV fájlba" />
+			<XLSXExportButton filename="iok2024_nem_ertekelok.xlsx" prepareExport={preparePeopleDidNotRatingExport}>
+				Nem értékelő vendégek exportálása Excel fájlba
+			</XLSXExportButton>
 		</Box>
 	</>
 }

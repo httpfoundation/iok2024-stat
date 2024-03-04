@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { useGetAll } from "./tools/datoCmsTools"
 // @ts-ignore
 import { CSVLink } from "react-csv"
+import XLSXExportButton from "./XLSXExportButton"
 
 type Attendance = {
 	id: string,
@@ -38,6 +39,7 @@ type Registration = {
 	registrationFeedback: string,
 	translation: string,
 	createdAt: string,
+	newsletter: string;
 }
 
 const VisitorCount = () => {
@@ -73,6 +75,26 @@ const VisitorCount = () => {
 		const name = registrations.find(r => r.id === a.registration)?.name
 		return list.map((b: any) => ({id: a.registration, name: name, date: b.date, path: b.path}))
 	}).flat() as Attendance[]
+
+	const prepareOnlineAttendeesForExport = () => {
+		return [
+      ["ID", "Név", "E-mail", "Telefonszám", "Munkahely", "Onsite", "Szekció", "VIP Kód", "Regisztráció visszajelzés", "Fordítás", "Hírlevél", "Regisztrálás dátuma"],
+      ...attendances.filter(Boolean).map((i) => [
+        i!.id,
+        i!.name,
+        i!.email,
+        i!.phone,
+        i!.workplace,
+        i!.onsite,
+        i!.stage,
+        i!.vipCode,
+        i!.registrationFeedback,
+        i!.translation,
+        i!.newsletter,
+        i!.createdAt,
+      ]),
+    ];
+	}
 
 	const headers = [
 		{ label: "id", key: "id" },
@@ -124,7 +146,9 @@ const VisitorCount = () => {
 		{_attendances.length} online résztvevő - {logEntries.length} log bejegyzés
 
 		<div style={{marginTop: "1rem", marginBottom: "1rem"}}>
-			<CSVLink {...csvReport} separator=";" style={{textDecoration:"none"}}><Button variant="outlined">Online résztvevők exportálása CSV fájlba</Button></CSVLink>
+			<XLSXExportButton filename="iok2024-online-resztvevok.xlsx" prepareExport={prepareOnlineAttendeesForExport} sx={{ mt:0 }}>
+				Online résztvevők exportálása Excel fájlba
+			</XLSXExportButton>
 		</div>
 
 		<Box sx={{mb: 2}}><b>{last5MinCount} aktív néző</b> (utolsó 5 percben)</Box>
