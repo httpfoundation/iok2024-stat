@@ -7,7 +7,7 @@ export const CSVExportLink = ({registrations, fileName, buttonTitle}) => {
 	const csvReport = getCsvReportData(registrations, fileName)
 	
 	return (
-		<CSVLink {...csvReport} separator=";" style={{textDecoration:"none"}}><Button variant="outlined">{buttonTitle}</Button></CSVLink>
+		<CSVLink {...csvReport} separator=";" style={{textDecoration:"none"}}><Button variant="outlined" sx={{ width: 'fit-content' }}>{buttonTitle}</Button></CSVLink>
 	)
 }
 

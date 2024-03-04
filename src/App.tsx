@@ -14,6 +14,7 @@ import { Box, styled } from '@mui/system'
 import VisitorCount from './VisitorCount'
 import Questions from './Questions'
 import Ratings from './Ratings'
+import VipList from './VipList'
 
 /*
 const Container = styled('div')`
@@ -86,12 +87,14 @@ function App() {
 								<Link to="/jelenlet"><Button variant="contained" color="primary" sx={{ml: 2}}>Jelenlét</Button></Link>
 								<Link to="/kerdesek"><Button variant="contained" color="primary" sx={{ml: 2}}>Kérdések</Button></Link>
 								<Link to="/ertekelesek"><Button variant="contained" color="primary" sx={{ml: 2}}>Értékelések</Button></Link>
+								<Link to="/vip"><Button variant="contained" color="primary" sx={{ml: 2}}>VIP Lista</Button></Link>
 							</Box>
 							<Routes>
 								<Route path="/" element={<StatPage />} />
 								<Route path="/jelenlet" element={<VisitorCount />} />
 								<Route path="/kerdesek" element={<Questions />} />
 								<Route path="/ertekelesek" element={<Ratings />} />
+								<Route path="/vip" element={<VipList />} />
 							</Routes>
 						</Container>
 					</Router>
