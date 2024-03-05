@@ -7,6 +7,7 @@ const StatPage = () => {
 	
 	const stages = useGetAll("stage")
 	const registrations = useGetAll("registration")
+	const roles = useGetAll("role");
 	const onsite = registrations.filter(r => r.onsite)
 	const online = registrations.filter(r => (!(r.onsite)))
 	
@@ -29,7 +30,7 @@ const StatPage = () => {
 		if(!registrations) return;
 
 		return [
-      ["ID", "Név", "E-mail", "Telefonszám", "Munkahely", "Onsite", "Szekció", "VIP Kód", "Regisztráció visszajelzés", "Fordítás", "Hírlevél", "Regisztrálás dátuma"],
+      ["ID", "Név", "E-mail", "Telefonszám", "Munkahely", "Onsite", "Szekció", "VIP Kód", "Regisztráció visszajelzés", "Fordítás", "Hírlevél", "Regisztrálás dátuma", 'Szerepkör'],
       ...registrations.map((i) => [
         i.id,
         i.name,
@@ -43,6 +44,7 @@ const StatPage = () => {
         i.translation,
         i.newsletter,
         i.createdAt,
+				roles.find(x => x.id === i.role)?.name || ''
       ]),
     ];
 	}
