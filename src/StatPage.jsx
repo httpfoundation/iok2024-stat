@@ -22,8 +22,6 @@ const StatPage = () => {
 		return {name: stage.name, numberOfRegistration: regs.length}
 	}))
 
-	console.log(registrations)
-	
 	const onsiteBreakoutSessions = breakoutSessions.filter(bs => bs.numberOfRegistration>0)
 
 	const prepareRegistrationExport = () => {

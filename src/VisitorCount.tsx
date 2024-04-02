@@ -1,9 +1,10 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, CardContent, Card, Typography, Stack, Grid, Button } from "@mui/material"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useGetAll } from "./tools/datoCmsTools"
 // @ts-ignore
 import { CSVLink } from "react-csv"
 import XLSXExportButton from "./XLSXExportButton"
+import AttendanceChart from "./AttendanceChart"
 
 type Attendance = {
 	id: string,
@@ -47,6 +48,26 @@ const VisitorCount = () => {
 	const [lastUpdatedAt, setLastUpdatedAt] = useState<Date | null>(new Date())
 	const _attendances = useGetAll("attendance", refreshKey)
 	const registrations: Registration[]  = useGetAll("registration", refreshKey)
+	const talks: any[] = useGetAll("talk", refreshKey);
+
+  const startingTime = useMemo(
+    () =>
+      new Date(
+        talks.sort(
+          (a, z) => new Date(a.start).getTime() - new Date(z.start).getTime()
+        )[0]?.start
+      ),
+    [talks]
+  );
+  const endingTime = useMemo(
+    () =>
+      new Date(
+        talks.sort(
+          (a, z) => new Date(z.end).getTime() - new Date(a.end).getTime()
+        )[0]?.end
+      ),
+    [talks]
+  );
 
 	useEffect(() => {
 		const interval = window.setInterval(() => {
@@ -63,6 +84,98 @@ const VisitorCount = () => {
 	const attendances = _attendances.map((a: any) => {
 		return  registrations.find(r => r.id === a.registration)
 	})
+
+	const groupedAttendances = useMemo(() => {
+    const iddAttendances = ((_attendances as any[]) || [])
+      .flatMap((attendance) =>
+        JSON.parse(attendance?.attendances || '[]').flatMap((a: any) => ({
+          ...a,
+          id: attendance.registration,
+        }))
+      )
+      .filter((attendance) => attendance.path.startsWith("/szekcio"));
+
+		const groupped = (Object as any).groupBy(iddAttendances, (attendance: any) => attendance.path);
+
+		const res: Record<string, any[]> = {};
+		for (const i in groupped) {
+			res[i] = groupped[i].filter(
+				(x:any, idx:number) => groupped[i].findIndex((i: any) => i.id === x.id) === idx
+			);
+		}
+
+		return res;
+  }, [_attendances]);
+
+	const groupedAttendancesDuringTheConf = useMemo(() => {
+    const iddAttendances = ((_attendances as any[]) || [])
+      .flatMap((attendance) =>
+        JSON.parse(attendance?.attendances || '[]').flatMap((a: any) => ({
+          ...a,
+          id: attendance.registration,
+        }))
+      )
+			.filter((attendance) => {
+				const date = new Date(attendance.date);
+
+				return (
+					date.getTime() > startingTime.getTime() - 1000 * 60 * 60 &&
+					date.getTime() < endingTime.getTime() + 1000 * 60 * 60
+				);
+			})
+      .filter((attendance) => attendance.path.startsWith("/szekcio"));
+
+		const groupped = (Object as any).groupBy(iddAttendances, (attendance: any) => attendance.path);
+
+		const res: Record<string, any[]> = {};
+		for (const i in groupped) {
+			res[i] = groupped[i].filter(
+				(x:any, idx:number) => groupped[i].findIndex((i: any) => i.id === x.id) === idx
+			);
+		}
+
+		return res;
+  }, [_attendances, startingTime, endingTime]);
+
+	const summedAttendances = useMemo(() => {
+    return ((_attendances as any[]) || [])
+      .flatMap((attendance) =>
+        JSON.parse(attendance?.attendances || "[]").flatMap((a: any) => ({
+          ...a,
+          id: attendance.registration,
+        }))
+      )
+      .filter((attendance) => attendance.path.startsWith("/szekcio"))
+      .filter(
+        (x: any, idx: number, arr: any[]) =>
+          arr.findIndex((i: any) => i.id === x.id) === idx
+      )
+			.length;
+  }, [_attendances]);
+
+	const summedAttendancesDuringTheConf = useMemo(() => {
+    return ((_attendances as any[]) || [])
+      .flatMap((attendance) =>
+        JSON.parse(attendance?.attendances || "[]").flatMap((a: any) => ({
+          ...a,
+          id: attendance.registration,
+        }))
+      )
+			.filter((attendance) => {
+				const date = new Date(attendance.date);
+
+				return (
+					date.getTime() > startingTime.getTime() - 1000 * 60 * 60 &&
+					date.getTime() < endingTime.getTime() + 1000 * 60 * 60
+				);
+			})
+      .filter((attendance) => attendance.path.startsWith("/szekcio"))
+      .filter(
+        (x: any, idx: number, arr: any[]) =>
+          arr.findIndex((i: any) => i.id === x.id) === idx
+      )
+			.length;
+  }, [_attendances, startingTime, endingTime]);
 
 	const logEntries = _attendances.map((a: any) => {
 		const list = JSON.parse(a.attendances) as {date: string, path: string}[]
@@ -129,7 +242,6 @@ const VisitorCount = () => {
 		"/szekcio/szakkepzes-itmp-netacad": "Szakkepzés, ITMP, Netacad",
 		"/szekcio/digitalis-kultura": "Digitalis kultúra",
 		"/szekcio/it-felsooktatas": "IT felsőoktatás",
-		"/szekcio/digitalis-kultura-also-tagozat": "Digitalis kultúra alsó tagozat",
 	} as Record<string, string>
 
 	//console.log(attendances)
@@ -151,10 +263,13 @@ const VisitorCount = () => {
 			</XLSXExportButton>
 		</div>
 
-		<Box sx={{mb: 2}}><b>{last5MinCount} aktív néző</b> (utolsó 5 percben)</Box>
+		<Box sx={{mb: 0.5}}><b>{last5MinCount} aktív néző</b> (utolsó 5 percben)</Box>
+		<Box sx={{mb: 0.5}}><b>{summedAttendancesDuringTheConf} aktív néző</b> (a konferencia alatt)</Box>
+		<Box sx={{mb: 2}}><b>{summedAttendances} aktív néző</b> (összesen)</Box>
 
 		<Box sx={{mb: 2}}>Utoljára frissítve: {lastUpdatedAt ? formatDate(lastUpdatedAt).slice(0,5) : null}</Box>
 
+		<Typography variant="h5" sx={{fontWeight:'bold',mb:1}}>Utolsó 5 percben:</Typography>
 		<Grid container spacing={2} sx={{mb: 4}}>
 			{Object.keys(stages).map((k, i) => <Grid item xs>
 				<Card key={i} sx={{height: '100%'}}>
@@ -164,6 +279,38 @@ const VisitorCount = () => {
 						</Typography>
 						<Typography variant="h5" component="div">
 							<b>{last5Min[k] || 0}</b> <span style={{fontSize: 20, fontWeight: 500}}>néző</span>
+						</Typography>
+					</CardContent>
+				</Card>
+			</Grid>)}
+		</Grid>
+
+		<Typography variant="h5" sx={{fontWeight:'bold',mb:1}}>A konferencia alatt:</Typography>
+		<Grid container spacing={2} sx={{mb: 4}}>
+			{Object.keys(stages).map((k, i) => <Grid item xs>
+				<Card key={i} sx={{height: '100%'}}>
+					<CardContent>
+						<Typography sx={{ fontSize: 14 }} gutterBottom>
+							{stages[k]}
+						</Typography>
+						<Typography variant="h5" component="div">
+							<b>{groupedAttendancesDuringTheConf[k]?.length || 0}</b> <span style={{fontSize: 20, fontWeight: 500}}>néző</span>
+						</Typography>
+					</CardContent>
+				</Card>
+			</Grid>)}
+		</Grid>
+
+		<Typography variant="h5" sx={{fontWeight:'bold',mb:1}}>Összesen:</Typography>
+		<Grid container spacing={2} sx={{mb: 4}}>
+			{Object.keys(stages).map((k, i) => <Grid item xs>
+				<Card key={i} sx={{height: '100%'}}>
+					<CardContent>
+						<Typography sx={{ fontSize: 14 }} gutterBottom>
+							{stages[k]}
+						</Typography>
+						<Typography variant="h5" component="div">
+							<b>{groupedAttendances[k]?.length || 0}</b> <span style={{fontSize: 20, fontWeight: 500}}>néző</span>
 						</Typography>
 					</CardContent>
 				</Card>
@@ -189,6 +336,9 @@ const VisitorCount = () => {
 			</TableContainer>
 		</Box>
 		
+		<Paper sx={{ mt: 4, p: 1 }} elevation={2}>
+			<AttendanceChart endingTime={endingTime} startingTime={startingTime} />
+		</Paper>
 	</>
 }
 
